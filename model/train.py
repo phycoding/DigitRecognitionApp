@@ -71,7 +71,7 @@ history = model.fit(datagen.flow(train_images, train_labels, batch_size=batch_si
                     callbacks=[learning_rate_reduction], verbose=2)
 
 # Save the model
-model.save('digit_recognition_model.h5')
+model.save('digit_recognition_model.keras')
 # Visualize the training process
 visualizer = TrainingVisualizer(history)
 visualizer.plot_accuracy()
