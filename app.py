@@ -12,8 +12,8 @@ model = tf.keras.models.load_model(r"model\digit_recognition_model.keras")
 # Sidebar elements for customization
 st.sidebar.header("Canvas Options")
 stroke_width = st.sidebar.slider("Stroke width: ", 25, 35, 25)
-stroke_color = st.sidebar.color_picker("Stroke color hex: ", "#000000")
-bg_color = st.sidebar.color_picker("Background color hex: ", "#FFFFFF")
+stroke_color = st.sidebar.color_picker("Stroke color hex: ", "#FFFFFF")
+bg_color = st.sidebar.color_picker("Background color hex: ", "#000000")
 bg_image = st.sidebar.file_uploader("Background image (optional):", type=["png", "jpg"])
 drawing_mode = st.sidebar.selectbox(
     "Drawing tool:", ("freedraw", "line", "rect", "circle", "transform", "polygon")
