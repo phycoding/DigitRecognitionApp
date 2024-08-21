@@ -76,9 +76,11 @@ streamlit run app.py
 
 Here are some visuals to help you understand the application better:
 
-- **Training Graph**: ![Training Graph]("images\model_statistics.png)
-- **Testing Script**: ![Testing GIF]()
-- **Streamlit App**: ![Streamlit App Screenshot]()
+- **Training Graph**: ![Training Graph](images/model_statistics.png)
+  
+- **Testing Script**: ![Testing GIF](images/model_loss.png)
+  
+- **Streamlit App**: ![Streamlit App Screenshot](images/app.png)
 
 ## 🎉 Thank You!
 
