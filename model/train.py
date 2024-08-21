@@ -1,7 +1,11 @@
 import tensorflow as tf
-from tensorflow.keras import datasets, layers, models, callbacks
+import numpy as np
 import sys
 import os
+from tensorflow.keras import datasets, layers, models, callbacks
+from tensorflow.keras.applications import MobileNetV2, VGG16, ResNet50, InceptionV3
+from keras.preprocessing.image import img_to_array, array_to_img
+
 
 # Add the project root to the Python path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -24,9 +28,16 @@ else:
 train_images = train_images.reshape((60000, 28, 28, 1)).astype('float32') / 255
 test_images = test_images.reshape((10000, 28, 28, 1)).astype('float32') / 255
 
-# Build the model
-model = models.Sequential([
-    layers.Conv2D(32, (3, 3), activation='relu', input_shape=(28, 28, 1)),
+
+train_images = np.asarray([img_to_array(array_to_img(im, scale=False).resize((32,32))) for im in train_images])
+test_images = np.asarray([img_to_array(array_to_img(im, scale=False).resize((32,32))) for im in test_images])
+
+#dict to store models
+models_dict = {}
+
+# Build the custom model
+custom_model = models.Sequential([
+    layers.Conv2D(32, (3, 3), activation='relu', input_shape=(32, 32, 1)),
     layers.Conv2D(32, (3, 3), activation='relu'),
     layers.MaxPooling2D((2, 2)),
     layers.Conv2D(64, (3, 3), activation='relu'),
@@ -37,15 +48,42 @@ model = models.Sequential([
 ])
 
 # Compile the model
-model.compile(optimizer='RMSProp',
+custom_model.compile(optimizer='RMSProp',
               loss='sparse_categorical_crossentropy',
               metrics=['accuracy'])
 
-learning_rate_reduction = callbacks.ReduceLROnPlateau(monitor='val_accuracy', 
-                                                      patience=3, 
+learning_rate_reduction = callbacks.ReduceLROnPlateau(monitor='val_accuracy',                                                   patience=3, 
                                                       verbose=1, 
                                                       factor=0.5, 
                                                       min_lr=0.00001)
+models_dict['CustomModel'] = custom_model
+
+# Define pre-trained models with custom final layers
+def add_final_layer(base_model):
+    model = models.Sequential([
+        base_model,
+        layers.Flatten(),
+        layers.Dense(10, activation='softmax')
+    ])
+    return model
+
+
+# MobileNetV2
+mobile_model = add_final_layer(MobileNetV2(input_shape=(32, 32, 1), include_top=False, weights=None))
+mobile_model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+models_dict['MobileNetV2'] = mobile_model
+
+# VGG16
+vgg_model = add_final_layer(VGG16(input_shape=(32, 32, 1), include_top=False, weights=None))
+vgg_model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+models_dict['VGG16'] = vgg_model
+
+# ResNet50
+resnet_model = add_final_layer(ResNet50(input_shape=(32, 32, 1), include_top=False, weights=None))
+resnet_model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+models_dict['ResNet50'] = resnet_model
+
+
 epochs = 30 
 batch_size = 86
 
@@ -66,14 +104,23 @@ datagen = tf.keras.preprocessing.image.ImageDataGenerator(
 datagen.fit(train_images)
 
 # Train the model
-history = model.fit(datagen.flow(train_images, train_labels, batch_size=batch_size),
-                    epochs=epochs, validation_data=(test_images, test_labels), 
-                    callbacks=[learning_rate_reduction], verbose=2)
+# Train all models
+for name, model in models_dict.items():
+    print(f"Training {name}...")
+    if name == 'CustomModel':
+        history = model.fit(datagen.flow(train_images, train_labels, batch_size=batch_size),
+                        epochs=epochs, validation_data=(test_images, test_labels), 
+                        callbacks=[learning_rate_reduction], verbose=2)
+    else:
+        history = model.fit(datagen.flow(train_images, train_labels, batch_size=batch_size),
+                        epochs=epochs, validation_data=(test_images, test_labels), 
+                         verbose=2)
 
-# Save the model
-model.save('digit_recognition_model.keras')
-# Visualize the training process
-visualizer = TrainingVisualizer(history)
-visualizer.plot_accuracy()
-visualizer.plot_loss()
-visualizer.plot_learning_rate()
+    # Save the model
+    model.save(f'{name}.keras')
+    # Visualize the training process
+    visualizer = TrainingVisualizer(history)
+    # visualizer.plot_accuracy()
+    # visualizer.plot_loss()
+    # visualizer.plot_learning_rate()
+    print(f"{name} training completed and model saved.")
