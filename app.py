@@ -7,7 +7,7 @@ import cv2
 
 # Load the trained model
 model = 2
-model = tf.keras.models.load_model("model\digit_recognition_model.keras")
+model = tf.keras.models.load_model("model/digit_recognition_model.keras")
 
 # Sidebar elements for customization
 st.sidebar.header("Canvas Options")
