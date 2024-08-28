@@ -2,6 +2,7 @@
 # Digit Recognition App 🚀
 
 Welcome to the **Digit Recognition App**! This application allows you to train and test a digit recognition model, as well as interact with it using a Streamlit web interface. Follow the steps below to get everything up and running. 🎉
+- **Streamlit App**: ![Streamlit App Screenshot](images/app.png)
 
 ## 📂 Setup Instructions
 
@@ -80,7 +81,7 @@ Here are some visuals to help you understand the application better:
   
 - **Testing Script**: ![Testing GIF](images/model_loss.png)
   
-- **Streamlit App**: ![Streamlit App Screenshot](images/app.png)
+
 
 ## 🎉 Thank You!
 
